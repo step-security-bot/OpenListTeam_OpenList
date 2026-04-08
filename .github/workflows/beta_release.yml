@@ -17,14 +17,19 @@ jobs:
     name: Beta Release Changelog
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       - name: Create or update ref
         id: create-or-update-ref
-        uses: ovsds/create-or-update-ref-action@v1
+        uses: ovsds/create-or-update-ref-action@1157b2991820188d5a8e6f22656775d1d171f762 # v1.1.0
         with:
           ref: tags/beta
           sha: ${{ github.sha }}
@@ -40,7 +45,7 @@ jobs:
           npx changelogithub --output CHANGELOG.md
 
       - name: Upload assets to beta release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
         with:
           body_path: CHANGELOG.md
           files: CHANGELOG.md
@@ -48,7 +53,7 @@ jobs:
           tag_name: beta
 
       - name: Upload assets to github artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: beta changelog
           path: ${{ github.workspace }}/CHANGELOG.md
@@ -97,13 +102,18 @@ jobs:
     name: Beta Release
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: "1.25.0"
 
@@ -114,7 +124,7 @@ jobs:
           FRONTEND_REPO: ${{ vars.FRONTEND_REPO }}
 
       - name: Build
-        uses: OpenListTeam/cgo-actions@v1.2.2
+        uses: OpenListTeam/cgo-actions@985a2d78ce2178186683d7a1076f6a5e46bf5257 # v1.2.2
         with:
           targets: ${{ matrix.target }}
           flags: ${{ matrix.flags || '-ldflags=' }}
@@ -140,7 +150,7 @@ jobs:
 
       # See above
       - name: Upload assets to beta release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
         with:
           files: build/compress/*
           prerelease: true
@@ -156,7 +166,7 @@ jobs:
           echo "cleaned_target=$CLEANED_TARGET" >> $GITHUB_ENV
 
       - name: Upload assets to github artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: beta builds for ${{ env.cleaned_target }}
           path: ${{ github.workspace }}/build/compress/*
